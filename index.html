@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Кодирование целых чисел и переполнение — Онлайн-визуализатор</title>
+  <link rel="stylesheet" href="css/visualizer.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <h1>Кодирование целых чисел</h1>
+        <p>Интерактивная лаборатория для 10 класса: без знака, прямой, обратный и дополнительный код</p>
+      </div>
+      <div class="header-controls">
+        <div class="bit-switcher" role="group" aria-label="Выбор разрядности">
+          <button class="bit-btn active" data-bits="4">4 бита</button>
+          <button class="bit-btn" data-bits="5">5 бит</button>
+          <button class="bit-btn bit-btn--demo" data-bits="8">8 бит (демо)</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div id="demo-banner" class="demo-banner" style="display:none;">
+      <span><strong>8-битный демо-режим:</strong> здесь доступны готовые показательные кейсы для изучения механики байта. Для свободных экспериментов переключитесь на <strong>4 бита</strong> или <strong>5 бит</strong>, а числа из своего варианта на рабочем листе рассчитывайте самостоятельно.</span>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab-btn active" data-tab="bits">1. Биты и коды</button>
+      <button class="tab-btn" data-tab="circle">2. Числовая окружность</button>
+      <button class="tab-btn" data-tab="adder">3. Сумматор и переполнение</button>
+    </div>
+
+    <!-- TAB 1: BITS & CODES -->
+    <section id="panel-bits" class="tab-panel active">
+      <div class="card">
+        <h2 class="card-title">Одни и те же биты — разные числа</h2>
+        <p class="card-subtitle">Переключайте биты и наблюдайте, как одна и та же двоичная запись читается в разных системах кодирования. Красным выделен старший (знаковый) бит.</p>
+
+        <div id="bits-demo-presets" style="display:none;"></div>
+        <div id="bit-switches" class="bit-row"></div>
+        <div id="bits-quick-controls" class="controls-row"></div>
+
+        <div class="interp-grid">
+          <div class="interp-box interp-box--unsigned">
+            <div class="interp-label">Без знака</div>
+            <div class="interp-val" id="interp-unsigned">0</div>
+            <div class="interp-note" id="interp-unsigned-note"></div>
+          </div>
+          <div class="interp-box interp-box--direct">
+            <div class="interp-label">Прямой код (ПК)</div>
+            <div class="interp-val" id="interp-direct">+0</div>
+            <div class="interp-note" id="interp-direct-note"></div>
+          </div>
+          <div class="interp-box interp-box--ones">
+            <div class="interp-label">Обратный код (ОК)</div>
+            <div class="interp-val" id="interp-ones">+0</div>
+            <div class="interp-note" id="interp-ones-note"></div>
+          </div>
+          <div class="interp-box interp-box--twos">
+            <div class="interp-label">Дополнительный (ДК)</div>
+            <div class="interp-val" id="interp-twos">0</div>
+            <div class="interp-note" id="interp-twos-note"></div>
+          </div>
+        </div>
+
+        <div id="weight-formulas" class="formula-box"></div>
+        <div id="decode-guide-box" class="decode-guide" style="display:none;"></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="card-title">Пошаговое кодирование отрицательного числа</h2>
+          <p class="card-subtitle">Проследите цепочку: модуль → прямой код → обратный код → дополнительный код.</p>
+          <div id="encoder-controls" class="encoder-controls"></div>
+          <div id="encoder-steps" class="steps-list"></div>
+        </div>
+
+        <div class="card">
+          <h2 class="card-title">Почему в компьютере используют дополнительный код?</h2>
+          <p class="card-subtitle">Сравните представление нуля в трёх знаковых кодах: «лишний» −0 освобождает место для ещё одного отрицательного числа.</p>
+          <table class="zero-table">
+            <thead>
+              <tr>
+                <th>Код</th>
+                <th>+0</th>
+                <th>−0</th>
+                <th>Особенность</th>
+              </tr>
+            </thead>
+            <tbody id="zero-table-body"></tbody>
+          </table>
+          <div class="log-box" style="margin-top:10px;">
+            В дополнительном коде сложение с отрицательным числом выполняется тем же двоичным сумматором, что и сложение беззнаковых чисел — отдельная схема вычитания процессору не нужна.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: NUMBER CIRCLE -->
+    <section id="panel-circle" class="tab-panel">
+      <div class="card">
+        <div class="grid-circle">
+          <div class="circle-wrap" id="circle-mount"></div>
+          <div>
+            <h2 class="card-title">Числовая окружность (одометр)</h2>
+            <p class="card-subtitle">Битовое кольцо всегда одно и то же! Меняется лишь то, где проходит <strong>красная линия разрыва</strong> — граница переполнения.</p>
+
+            <div style="margin-bottom:14px;">
+              <div class="mode-toggle">
+                <button data-circle-mode="unsigned">Без знака (разрыв наверху)</button>
+                <button class="active" data-circle-mode="signed">Со знаком, доп. код (разрыв внизу)</button>
+              </div>
+            </div>
+
+            <div id="circle-controls"></div>
+            <div id="circle-log" class="log-box"></div>
+            <div id="circle-dual-readout" class="log-box" style="margin-top:8px;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: ADDER & OVERFLOW -->
+    <section id="panel-adder" class="tab-panel">
+      <div class="card">
+        <h2 class="card-title">Двоичное сложение в столбик и диагностика переполнения</h2>
+        <p class="card-subtitle">Процессор складывает биты одинаково. Посмотрите, как один и тот же результат трактуется для беззнаковых и знаковых чисел, и почему выпавший перенос не всегда означает переполнение.</p>
+
+        <div id="adder-inputs-panel"></div>
+
+        <div class="grid-adder" style="margin-top:14px;">
+          <div>
+            <div id="adder-column"></div>
+            <div id="adder-verdicts" class="verdict-grid"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div id="adder-circle-mount" class="circle-wrap"></div>
+            <div id="adder-circle-caption" style="font-size:0.82rem;color:var(--muted);text-align:center;margin-top:6px;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/bitmath.js"></script>
+  <script src="js/circle.js"></script>
+  <script src="js/visualizer.js"></script>
+</body>
+</html>
